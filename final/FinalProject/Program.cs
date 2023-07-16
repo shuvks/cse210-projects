@@ -1,168 +1,94 @@
 using System;
+using System.Collections.Generic;
 
-class Transaction
-{
-    public decimal Amount { get; set; }
-    public DateTime Date { get; set; }
-}
-
-class Income : Transaction
-{
-    public string Source { get; set; }
-
-    public virtual decimal CalculateTax()
-    {
-        // Perform tax calculation logic
-        return 0;
-    }
-}
-
-class Expense : Transaction
-{
-    public string Category { get; set; }
-
-    public virtual decimal CalculateTax()
-    {
-        // Perform tax calculation logic
-        return 0;
-    }
-}
-
-class Saving : Transaction
-{
-    public string Type { get; set; }
-
-    public virtual void AddInterest()
-    {
-        // Perform interest calculation logic
-    }
-}
-
-class Account
-{
-    public string Name { get; set; }
-    public decimal Balance { get; set; }
-}
-
-class BankAccount : Account
-{
-    public string AccountNumber { get; set; }
-    public string BankName { get; set; }
-}
-
-class CreditCardAccount : Account
-{
-    public string CardNumber { get; set; }
-    public string CardIssuer { get; set; }
-}
-
-class FinancialManager
-{
-    private BankAccount bankAccount;
-    private CreditCardAccount creditCardAccount;
-
-    public FinancialManager(BankAccount bankAccount, CreditCardAccount creditCardAccount)
-    {
-        this.bankAccount = bankAccount;
-        this.creditCardAccount = creditCardAccount;
-    }
-
-    public void TrackIncome(Income income)
-    {
-        bankAccount.Balance += income.Amount;
-    }
-
-    public void TrackExpense(Expense expense)
-    {
-        bankAccount.Balance -= expense.Amount;
-    }
-
-    public void TrackSaving(Saving saving)
-    {
-        bankAccount.Balance -= saving.Amount;
-    }
-
-    public decimal CalculateTotalIncome()
-    {
-        // Calculate and return the total income
-        return bankAccount.Balance;
-    }
-
-    public decimal CalculateTotalExpense()
-    {
-        // Calculate and return the total expense
-        return -bankAccount.Balance;
-    }
-
-    public decimal CalculateTotalSaving()
-    {
-        // Calculate and return the total saving
-        return -bankAccount.Balance;
-    }
-
-    public void MakeCreditCardPayment(decimal amount)
-    {
-        creditCardAccount.Balance -= amount;
-        bankAccount.Balance -= amount;
-    }
-
-    public void DisplayAccountSummary()
-    {
-        Console.WriteLine("Bank Account: " + bankAccount.Name);
-        Console.WriteLine("Account Number: " + bankAccount.AccountNumber);
-        Console.WriteLine("Bank Name: " + bankAccount.BankName);
-        Console.WriteLine("Balance: $" + bankAccount.Balance);
-        Console.WriteLine();
-
-        Console.WriteLine("Credit Card Account: " + creditCardAccount.Name);
-        Console.WriteLine("Card Number: " + creditCardAccount.CardNumber);
-        Console.WriteLine("Card Issuer: " + creditCardAccount.CardIssuer);
-        Console.WriteLine("Balance: $" + creditCardAccount.Balance);
-        Console.WriteLine();
-    }
-}
-
-class Program
+class ExpenseTracker
 {
     static void Main(string[] args)
     {
-        BankAccount bankAccount = new BankAccount
+        Console.WriteLine("Expense Tracker");
+
+        // Get user information
+        Console.Write("Enter your name: ");
+        string userName = Console.ReadLine();
+
+        Console.Write("Enter the last 4 digits of your card number: ");
+        string cardNumber = Console.ReadLine();
+
+        decimal remainingBalance = 0;
+        List<string> expenseList = new List<string>();
+
+        // Track expenses
+        bool exit = false;
+        while (!exit)
         {
-            Name = "John Doe",
-            AccountNumber = "123456789",
-            BankName = "ABC Bank",
-            Balance = 5000
-        };
+            Console.WriteLine();
+            Console.WriteLine("1. Add Expense");
+            Console.WriteLine("2. Add Money to Bank Account");
+            Console.WriteLine("3. View Remaining Balance");
+            Console.WriteLine("4. View Expense List");
+            Console.WriteLine("5. Exit");
+            Console.WriteLine();
 
-        CreditCardAccount creditCardAccount = new CreditCardAccount
-        {
-            Name = "John Doe",
-            CardNumber = "987654321",
-            CardIssuer = "XYZ Bank",
-            Balance = 2000
-        };
+            Console.Write("Enter your choice: ");
+            string choice = Console.ReadLine();
+            Console.WriteLine();
 
-        FinancialManager manager = new FinancialManager(bankAccount, creditCardAccount);
+            switch (choice)
+            {
+                case "1":
+                    Console.Write("Enter the amount spent: ");
+                    decimal expenseAmount = Convert.ToDecimal(Console.ReadLine());
 
-        // Example usage
-        Income salary = new Income { Amount = 5000, Source = "Job" };
-        Expense rent = new Expense { Amount = 1000, Category = "Housing" };
-        Saving emergencyFund = new Saving { Amount = 2000, Type = "Emergency" };
+                    Console.Write("Enter a description of the expense: ");
+                    string expenseDescription = Console.ReadLine();
 
-        manager.TrackIncome(salary);
-        manager.TrackExpense(rent);
-        manager.TrackSaving(emergencyFund);
+                    // Subtract the expense amount from the remaining balance
+                    remainingBalance -= expenseAmount;
 
-        decimal totalIncome = manager.CalculateTotalIncome();
-        decimal totalExpense = manager.CalculateTotalExpense();
-        decimal totalSaving = manager.CalculateTotalSaving();
+                    // Add the expense and its description to the expense list
+                    string expenseEntry = expenseAmount.ToString("C") + " - " + expenseDescription;
+                    expenseList.Add(expenseEntry);
 
-        Console.WriteLine("Total Income: $" + totalIncome);
-        Console.WriteLine("Total Expense: $" + totalExpense);
-        Console.WriteLine("Total Saving: $" + totalSaving);
+                    Console.WriteLine("Expense added successfully!");
+                    Console.WriteLine();
+                    break;
 
-        manager.DisplayAccountSummary();
+                case "2":
+                    Console.Write("Enter the amount to add to your bank account: ");
+                    decimal depositAmount = Convert.ToDecimal(Console.ReadLine());
 
-        Console.ReadLine();
+                    // Add the deposit amount to the remaining balance
+                    remainingBalance += depositAmount;
+
+                    Console.WriteLine("Money added to your bank account successfully!");
+                    Console.WriteLine();
+                    break;
+
+                case "3":
+                    Console.WriteLine("Remaining Balance: $" + remainingBalance);
+                    Console.WriteLine();
+                    break;
+
+                case "4":
+                    Console.WriteLine("Expense List:");
+                    foreach (string expense in expenseList)
+                    {
+                        Console.WriteLine(expense);
+                    }
+                    Console.WriteLine();
+                    break;
+
+                case "5":
+                    exit = true;
+                    break;
+
+                default:
+                    Console.WriteLine("Invalid choice. Please try again.");
+                    Console.WriteLine();
+                    break;
+            }
+        }
+
+        Console.WriteLine("Thank you for using the Expense Tracker, " + userName + "!");
     }
 }
